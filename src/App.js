@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import classNames from "classnames";
 import { v4 } from "uuid";
 
@@ -6,6 +6,8 @@ const defaultTodos = [
   { id: 1, title: "Learn react", completed: true },
   { id: 2, title: "Learn css", completed: false },
 ];
+
+const TodoContext = React.createContext();
 
 function TodoInput({ addTodo }) {
   const [title, setTitle] = useState("");
@@ -78,13 +80,8 @@ function TodoList({ todos, toggle, activeTodoCount, toggleAll, deleteTodo }) {
   );
 }
 
-function Footer({
-  activeTodoCount,
-  nowShowing,
-  setFilter,
-  completedCount,
-  clearCompleted,
-}) {
+function Footer({ activeTodoCount, nowShowing, setFilter, completedCount }) {
+  const { clearCompleted } = useContext(TodoContext);
   return (
     <footer className="footer">
       <span className="todo-count">
@@ -182,26 +179,27 @@ function App() {
   const currentTodos = filterTodos(todos, nowShowing);
 
   return (
-    <section className="todoapp">
-      <header className="header">
-        <h1>todos</h1>
-        <TodoInput addTodo={addTodo} />
-      </header>
-      <TodoList
-        todos={currentTodos}
-        activeTodoCount={activeTodoCount}
-        toggleAll={toggleAll}
-        toggle={toggle}
-        deleteTodo={deleteTodo}
-      />
-      <Footer
-        activeTodoCount={activeTodoCount}
-        nowShowing={nowShowing}
-        setFilter={setFilter}
-        completedCount={completedCount}
-        clearCompleted={clearCompleted}
-      />
-    </section>
+    <TodoContext.Provider value={{ clearCompleted }}>
+      <section className="todoapp">
+        <header className="header">
+          <h1>todos</h1>
+          <TodoInput addTodo={addTodo} />
+        </header>
+        <TodoList
+          todos={currentTodos}
+          activeTodoCount={activeTodoCount}
+          toggleAll={toggleAll}
+          toggle={toggle}
+          deleteTodo={deleteTodo}
+        />
+        <Footer
+          activeTodoCount={activeTodoCount}
+          nowShowing={nowShowing}
+          setFilter={setFilter}
+          completedCount={completedCount}
+        />
+      </section>
+    </TodoContext.Provider>
   );
 }
 
