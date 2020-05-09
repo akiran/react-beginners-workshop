@@ -78,10 +78,80 @@ function TodoList({ todos, toggle, activeTodoCount, toggleAll, deleteTodo }) {
   );
 }
 
+function Footer({
+  activeTodoCount,
+  nowShowing,
+  setFilter,
+  completedCount,
+  clearCompleted,
+}) {
+  return (
+    <footer className="footer">
+      <span className="todo-count">
+        <strong>{activeTodoCount}</strong>{" "}
+        {activeTodoCount === 1 ? "item" : "items"} left
+      </span>
+      <ul className="filters">
+        <li>
+          <a
+            href="#/"
+            onClick={() => setFilter("all")}
+            className={classNames({ selected: nowShowing === "all" })}
+          >
+            All
+          </a>
+        </li>{" "}
+        <li>
+          <a
+            href="#/"
+            onClick={() => setFilter("active")}
+            className={classNames({
+              selected: nowShowing === "active",
+            })}
+          >
+            Active
+          </a>
+        </li>{" "}
+        <li>
+          <a
+            href="#/"
+            onClick={() => setFilter("completed")}
+            className={classNames({
+              selected: nowShowing === "completed",
+            })}
+          >
+            Completed
+          </a>
+        </li>
+      </ul>
+      {completedCount > 0 ? (
+        <button className="clear-completed" onClick={clearCompleted}>
+          Clear completed
+        </button>
+      ) : null}
+    </footer>
+  );
+}
+
+function filterTodos(todos, nowShowing) {
+  if (nowShowing === "all") {
+    return todos;
+  }
+  if (nowShowing === "active") {
+    return todos.filter((todo) => !todo.completed);
+  }
+  if (nowShowing === "completed") {
+    return todos.filter((todo) => todo.completed);
+  }
+  return todos;
+}
+
 function App() {
   const [todos, setTodos] = useState(defaultTodos);
+  const [nowShowing, setFilter] = useState("all");
   const activeTodos = todos.filter((todo) => !todo.completed);
   const activeTodoCount = activeTodos.length;
+  const completedCount = todos.length - activeTodoCount;
 
   function toggleAll() {
     setTodos(todos.map((todo) => ({ ...todo, completed: !!activeTodoCount })));
@@ -104,6 +174,13 @@ function App() {
     setTodos(newTodos);
   }
 
+  function clearCompleted() {
+    const newTodos = todos.filter((todo) => !todo.completed);
+    setTodos(newTodos);
+  }
+
+  const currentTodos = filterTodos(todos, nowShowing);
+
   return (
     <section className="todoapp">
       <header className="header">
@@ -111,11 +188,18 @@ function App() {
         <TodoInput addTodo={addTodo} />
       </header>
       <TodoList
-        todos={todos}
+        todos={currentTodos}
         activeTodoCount={activeTodoCount}
         toggleAll={toggleAll}
         toggle={toggle}
         deleteTodo={deleteTodo}
+      />
+      <Footer
+        activeTodoCount={activeTodoCount}
+        nowShowing={nowShowing}
+        setFilter={setFilter}
+        completedCount={completedCount}
+        clearCompleted={clearCompleted}
       />
     </section>
   );
