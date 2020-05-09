@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import classNames from "classnames";
 
 const defaultTodos = [
   { id: 1, title: "Learn react", completed: true },
@@ -9,9 +10,14 @@ function TodoInput() {
   return <input className="new-todo" placeholder="what needs to be done?" />;
 }
 
-function Todo({ todo, onToggle }) {
+function Todo({ todo, onToggle, editing, onDelete }) {
   return (
-    <li>
+    <li
+      className={classNames({
+        completed: todo.completed,
+        editing: editing,
+      })}
+    >
       <div className="view">
         <input
           className="toggle"
@@ -20,13 +26,13 @@ function Todo({ todo, onToggle }) {
           onChange={onToggle}
         />
         <label>{todo.title}</label>
-        <button className="destroy" />
+        <button className="destroy" onClick={onDelete} />
       </div>
     </li>
   );
 }
 
-function TodoList({ todos, toggle, activeTodoCount, toggleAll }) {
+function TodoList({ todos, toggle, activeTodoCount, toggleAll, deleteTodo }) {
   return (
     <section className="main">
       <input
@@ -39,7 +45,11 @@ function TodoList({ todos, toggle, activeTodoCount, toggleAll }) {
       <label htmlFor="toggle-all" />
       <ul className="todo-list">
         {todos.map((todo) => (
-          <Todo todo={todo} onToggle={() => toggle(todo.id)} />
+          <Todo
+            todo={todo}
+            onToggle={() => toggle(todo.id)}
+            onDelete={() => deleteTodo(todo.id)}
+          />
         ))}
       </ul>
     </section>
@@ -60,6 +70,11 @@ function App() {
     );
     setTodos(newTodos);
   }
+
+  function deleteTodo(id) {
+    const newTodos = todos.filter((todo) => todo.id !== id);
+    setTodos(newTodos);
+  }
   return (
     <section className="todoapp">
       <header className="header">
@@ -71,6 +86,7 @@ function App() {
         activeTodoCount={activeTodoCount}
         toggleAll={toggleAll}
         toggle={toggle}
+        deleteTodo={deleteTodo}
       />
     </section>
   );
